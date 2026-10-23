@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Lịch hẹn của tôi{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-gray-800">Lịch hẹn của tôi</h1>
+
+<div class="flex flex-wrap gap-2 mb-4">
+    <a href="/my-appointments" class="px-3 py-1 rounded-full text-sm {% if not status %}bg-primary-600 text-white{% else %}bg-gray-200{% endif %}">Tất cả</a>
+    {% for st in ['Chờ xác nhận', 'Đã xác nhận', 'Đã hoàn thành', 'Đã hủy', 'Vắng mặt', 'Quá hạn'] %}
+    <a href="/my-appointments?status={{ st }}" class="px-3 py-1 rounded-full text-sm {% if status == st %}bg-primary-600 text-white{% else %}bg-gray-200{% endif %}">{{ st }}</a>
+    {% endfor %}
+</div>
+
+{% if appointments %}
+<div class="space-y-4">
+    {% for a in appointments %}
+    <div class="bg-white rounded-xl shadow p-5">
+        <div class="flex justify-between items-start">
+            <div>
+                <span class="text-xs font-mono text-gray-400">{{ a.code }}</span>
+                <h3 class="font-semibold text-gray-800">{{ a.doctor.full_name if a.doctor else '' }}</h3>
+                <p class="text-sm text-gray-500">{{ a.doctor.specialty.name if a.doctor and a.doctor.specialty else '' }}</p>
+                <p class="text-sm mt-1">
+                    {% if a.time_slot %}
+                    📅 {{ a.time_slot.date.strftime('%d/%m/%Y') }} · 🕐 {{ a.time_slot.start_time.strftime('%H:%M') }}–{{ a.time_slot.end_time.strftime('%H:%M') }}
+                    {% endif %}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">Lý do: {{ a.reason[:80] }}{% if a.reason|length > 80 %}...{% endif %}</p>
+            </div>
+            <div class="text-right">
+                <span class="inline-block px-2.5 py-1 rounded-full text-xs font-medium
+                    {% if a.status.value == 'Chờ xác nhận' %}bg-yellow-100 text-yellow-800
+                    {% elif a.status.value == 'Đã xác nhận' %}bg-blue-100 text-blue-800
+                    {% elif a.status.value == 'Đã hoàn thành' %}bg-green-100 text-green-800
+                    {% elif a.status.value == 'Đã hủy' %}bg-gray-100 text-gray-600
+                    {% elif a.status.value == 'Vắng mặt' %}bg-orange-100 text-orange-800
+                    {% else %}bg-red-100 text-red-700{% endif %}">
+                    {{ a.status.value }}
+                </span>
+                {% if a.status.value in ['Chờ xác nhận', 'Đã xác nhận'] %}
+                <form method="post" action="/appointments/{{ a.id }}/cancel" class="mt-2" onsubmit="return confirm('Xác nhận hủy lịch hẹn?')">
+                    <input type="text" name="reason" placeholder="Lý do hủy (tùy chọn)" class="text-xs border rounded px-2 py-1 w-40 mb-1">
+                    <button type="submit" class="block w-full text-xs text-red-600 hover:underline">Hủy lịch</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow p-10 text-center text-gray-500">
+    Bạn chưa có lịch hẹn nào.
+    <div class="mt-4"><a href="/doctors" class="text-primary-600 hover:underline">Tìm bác sĩ →</a></div>
+</div>
+{% endif %}
+{% endblock %}

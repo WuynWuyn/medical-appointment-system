@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Danh sách bác sĩ{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-gray-800">Danh sách bác sĩ</h1>
+
+<form method="get" class="bg-white rounded-xl shadow p-4 mb-6 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[150px]">
+        <label class="text-xs text-gray-500">Tên bác sĩ</label>
+        <input type="text" name="q" value="{{ q }}" class="w-full border rounded-lg px-3 py-2 text-sm">
+    </div>
+    <div class="min-w-[150px]">
+        <label class="text-xs text-gray-500">Chuyên khoa</label>
+        <select name="specialty_id" class="w-full border rounded-lg px-3 py-2 text-sm">
+            <option value="">Tất cả</option>
+            {% for s in specialties %}
+            <option value="{{ s.id }}" {% if specialty_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="min-w-[140px]">
+        <label class="text-xs text-gray-500">Ngày còn trống</label>
+        <input type="date" name="date_filter" value="{{ date_filter }}" class="w-full border rounded-lg px-3 py-2 text-sm">
+    </div>
+    <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-primary-700">Lọc</button>
+</form>
+
+{% if doctors %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    {% for d in doctors %}
+    <a href="/doctors/{{ d.id }}" class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition flex gap-4">
+        <div class="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center text-2xl flex-shrink-0">
+            {% if d.avatar %}<img src="{{ d.avatar }}" class="w-16 h-16 rounded-full object-cover">{% else %}👨‍⚕️{% endif %}
+        </div>
+        <div>
+            <h3 class="font-semibold text-gray-800">{{ d.full_name }}</h3>
+            <p class="text-sm text-primary-600">{{ d.specialty.name if d.specialty else '' }}</p>
+            <p class="text-xs text-gray-500 mt-1">{{ d.degree or '' }} · {{ d.experience_years }} năm KN</p>
+            <p class="text-sm font-medium text-gray-700 mt-1">{{ "{:,}".format(d.consultation_fee) }} VNĐ</p>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+<div class="mt-6 flex justify-center gap-2">
+    {% if page > 1 %}<a href="?page={{ page-1 }}&q={{ q }}&specialty_id={{ specialty_id or '' }}" class="px-3 py-1 border rounded">←</a>{% endif %}
+    <span class="px-3 py-1 text-sm text-gray-600">Trang {{ page }}</span>
+    {% if page * per_page < total %}<a href="?page={{ page+1 }}&q={{ q }}&specialty_id={{ specialty_id or '' }}" class="px-3 py-1 border rounded">→</a>{% endif %}
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow p-10 text-center text-gray-500">
+    Không tìm thấy bác sĩ phù hợp. Hãy bỏ bớt bộ lọc.
+</div>
+{% endif %}
+{% endblock %}

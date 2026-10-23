@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Đăng nhập{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto mt-10 bg-white rounded-xl shadow-md p-8">
+    <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Đăng nhập</h1>
+    {% if registered %}
+    <div class="bg-green-50 text-green-700 p-3 rounded mb-4 text-sm">Đăng ký thành công! Vui lòng đăng nhập.</div>
+    {% endif %}
+    {% if error %}
+    <div class="bg-red-50 text-red-700 p-3 rounded mb-4 text-sm">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/auth/login" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" name="email" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+            <input type="password" name="password" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        <button type="submit" class="w-full bg-primary-600 text-white py-2.5 rounded-lg font-medium hover:bg-primary-700">Đăng nhập</button>
+    </form>
+    <p class="text-center text-sm text-gray-500 mt-4">
+        Chưa có tài khoản? <a href="/auth/register" class="text-primary-600 hover:underline">Đăng ký</a>
+    </p>
+    <div class="mt-6 p-3 bg-gray-50 rounded text-xs text-gray-500">
+        <p><strong>Demo:</strong></p>
+        <p>Admin: admin@clinic.vn / Admin123</p>
+        <p>Bệnh nhân: patient@example.com / Patient123</p>
+    </div>
+</div>
+{% endblock %}

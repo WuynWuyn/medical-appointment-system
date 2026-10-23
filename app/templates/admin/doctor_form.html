@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Thêm bác sĩ{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto bg-white rounded-xl shadow p-6">
+    <h1 class="text-xl font-bold mb-4">Thêm bác sĩ</h1>
+    {% if error %}<div class="bg-red-50 text-red-700 p-3 rounded mb-4 text-sm">{{ error }}</div>{% endif %}
+    <form method="post" enctype="multipart/form-data" class="space-y-3">
+        <div>
+            <label class="text-sm font-medium">Họ tên *</label>
+            <input type="text" name="full_name" required class="w-full border rounded-lg px-3 py-2">
+        </div>
+        <div>
+            <label class="text-sm font-medium">Chuyên khoa *</label>
+            <select name="specialty_id" required class="w-full border rounded-lg px-3 py-2">
+                {% for s in specialties %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="text-sm font-medium">Email *</label>
+                <input type="email" name="email" required class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <div>
+                <label class="text-sm font-medium">SĐT *</label>
+                <input type="text" name="phone" required class="w-full border rounded-lg px-3 py-2">
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <label class="text-sm font-medium">Học vị</label>
+                <input type="text" name="degree" class="w-full border rounded-lg px-3 py-2">
+            </div>
+            <div>
+                <label class="text-sm font-medium">Số năm KN</label>
+                <input type="number" name="experience_years" value="0" min="0" max="60" class="w-full border rounded-lg px-3 py-2">
+            </div>
+        </div>
+        <div>
+            <label class="text-sm font-medium">Phí khám (VNĐ)</label>
+            <input type="number" name="consultation_fee" value="0" min="0" class="w-full border rounded-lg px-3 py-2">
+        </div>
+        <div>
+            <label class="text-sm font-medium">Giới thiệu</label>
+            <textarea name="bio" rows="2" class="w-full border rounded-lg px-3 py-2"></textarea>
+        </div>
+        <div>
+            <label class="text-sm font-medium">Ảnh đại diện (JPG/PNG, tối đa 5MB – BUG-05)</label>
+            <input type="file" name="avatar" accept=".jpg,.jpeg,.png" class="w-full text-sm">
+        </div>
+        <button type="submit" class="w-full bg-primary-600 text-white py-2.5 rounded-lg hover:bg-primary-700">Lưu</button>
+    </form>
+</div>
+{% endblock %}

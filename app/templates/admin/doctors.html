@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Quản lý bác sĩ{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Quản lý bác sĩ</h1>
+    <a href="/admin/doctors/add" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-primary-700">+ Thêm bác sĩ</a>
+</div>
+
+<form method="get" class="flex gap-3 mb-4">
+    <input type="text" name="q" value="{{ q }}" placeholder="Tìm tên..." class="border rounded-lg px-3 py-2 text-sm">
+    <select name="status" class="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Tất cả trạng thái</option>
+        <option value="ACTIVE" {% if status=='ACTIVE' %}selected{% endif %}>Đang hoạt động</option>
+        <option value="INACTIVE" {% if status=='INACTIVE' %}selected{% endif %}>Ngừng hoạt động</option>
+    </select>
+    <button class="bg-gray-200 px-3 py-2 rounded-lg text-sm">Lọc</button>
+</form>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left">
+            <tr>
+                <th class="px-4 py-3">Họ tên</th>
+                <th class="px-4 py-3">Chuyên khoa</th>
+                <th class="px-4 py-3">Email</th>
+                <th class="px-4 py-3">Trạng thái</th>
+                <th class="px-4 py-3">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in doctors %}
+            <tr class="border-t">
+                <td class="px-4 py-3 font-medium">{{ d.full_name }}</td>
+                <td class="px-4 py-3">{{ d.specialty.name if d.specialty else '' }}</td>
+                <td class="px-4 py-3 text-gray-500">{{ d.email }}</td>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-0.5 rounded-full text-xs {% if d.status.value=='ACTIVE' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+                        {{ d.status.value }}
+                    </span>
+                </td>
+                <td class="px-4 py-3">
+                    <form method="post" action="/admin/doctors/{{ d.id }}/toggle-status" class="inline">
+                        <button class="text-xs text-primary-600 hover:underline">
+                            {% if d.status.value=='ACTIVE' %}Ẩn (INACTIVE){% else %}Kích hoạt{% endif %}
+                        </button>
+                    </form>
+                    <!-- BUG-08: Can set INACTIVE even with future appointments -->
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

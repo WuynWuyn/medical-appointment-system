@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Quản lý lịch hẹn{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-gray-800">Quản lý lịch hẹn</h1>
+
+<form method="get" class="flex flex-wrap gap-3 mb-4">
+    <input type="text" name="q" value="{{ q }}" placeholder="Mã / tên BN..." class="border rounded-lg px-3 py-2 text-sm">
+    <select name="status" class="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Tất cả trạng thái</option>
+        {% for st in ['Chờ xác nhận', 'Đã xác nhận', 'Đã hoàn thành', 'Đã hủy', 'Vắng mặt', 'Quá hạn'] %}
+        <option value="{{ st }}" {% if status==st %}selected{% endif %}>{{ st }}</option>
+        {% endfor %}
+    </select>
+    <button class="bg-gray-200 px-3 py-2 rounded-lg text-sm">Lọc</button>
+</form>
+
+<div class="bg-white rounded-xl shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left">
+            <tr>
+                <th class="px-3 py-3">Mã</th>
+                <th class="px-3 py-3">Bệnh nhân</th>
+                <th class="px-3 py-3">Bác sĩ</th>
+                <th class="px-3 py-3">Ngày giờ</th>
+                <th class="px-3 py-3">Trạng thái</th>
+                <th class="px-3 py-3">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in appointments %}
+            <tr class="border-t">
+                <td class="px-3 py-2 font-mono text-xs">{{ a.code }}</td>
+                <td class="px-3 py-2">{{ a.patient.full_name if a.patient else '' }}</td>
+                <td class="px-3 py-2">{{ a.doctor.full_name if a.doctor else '' }}</td>
+                <td class="px-3 py-2">
+                    {% if a.time_slot %}{{ a.time_slot.date.strftime('%d/%m') }} {{ a.time_slot.start_time.strftime('%H:%M') }}{% endif %}
+                </td>
+                <td class="px-3 py-2">
+                    <span class="text-xs px-2 py-0.5 rounded-full
+                        {% if a.status.value == 'Chờ xác nhận' %}bg-yellow-100 text-yellow-800
+                        {% elif a.status.value == 'Đã xác nhận' %}bg-blue-100 text-blue-800
+                        {% else %}bg-gray-100{% endif %}">{{ a.status.value }}</span>
+                </td>
+                <td class="px-3 py-2">
+                    {% if a.status.value == 'Chờ xác nhận' %}
+                    <form method="post" action="/admin/appointments/{{ a.id }}/action" class="inline">
+                        <input type="hidden" name="action" value="confirm">
+                        <button class="text-xs text-green-600 hover:underline">Xác nhận</button>
+                        <!-- BUG-07: No check if time already passed -->
+                    </form>
+                    {% endif %}
+                    {% if a.status.value in ['Chờ xác nhận', 'Đã xác nhận'] %}
+                    <form method="post" action="/admin/appointments/{{ a.id }}/action" class="inline ml-1">
+                        <input type="hidden" name="action" value="cancel">
+                        <input type="text" name="reason" placeholder="Lý do" class="text-xs border rounded w-20">
+                        <button class="text-xs text-red-600 hover:underline">Hủy</button>
+                    </form>
+                    {% endif %}
+                    {% if a.status.value == 'Đã xác nhận' %}
+                    <form method="post" action="/admin/appointments/{{ a.id }}/action" class="inline ml-1">
+                        <input type="hidden" name="action" value="complete">
+                        <button class="text-xs text-blue-600 hover:underline">Hoàn thành</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

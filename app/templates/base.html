@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Đặt lịch khám bệnh{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {50:'#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8'},
+                        success: {500:'#22c55e',600:'#16a34a'},
+                        danger: {500:'#ef4444',600:'#dc2626'},
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .slot-available { @apply bg-green-100 text-green-800 border-green-300 hover:bg-green-200 cursor-pointer; }
+        .slot-booked { @apply bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed; }
+        .slot-past { @apply bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed; }
+        .slot-blocked { @apply bg-red-100 text-red-600 border-red-300 cursor-not-allowed; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <nav class="bg-primary-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="/" class="text-xl font-bold flex items-center gap-2">
+                    <span>🏥</span> Đặt Lịch Khám
+                </a>
+                <div class="flex items-center gap-4">
+                    <a href="/doctors" class="hover:text-primary-100">Bác sĩ</a>
+                    {% if user %}
+                        {% if user.role.value == 'ADMIN' %}
+                            <a href="/admin" class="hover:text-primary-100">Quản trị</a>
+                        {% else %}
+                            <a href="/my-appointments" class="hover:text-primary-100">Lịch hẹn của tôi</a>
+                        {% endif %}
+                        <span class="text-sm">{{ user.full_name }}</span>
+                        <a href="/auth/logout" class="bg-white/20 px-3 py-1 rounded hover:bg-white/30">Đăng xuất</a>
+                    {% else %}
+                        <a href="/auth/login" class="hover:text-primary-100">Đăng nhập</a>
+                        <a href="/auth/register" class="bg-white text-primary-600 px-3 py-1 rounded font-medium hover:bg-primary-50">Đăng ký</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm">
+            © 2026 Website Đặt Lịch Khám Bệnh Trực Tuyến — Phiên bản 1.0 (có seeded bugs để kiểm thử)
+        </div>
+    </footer>
+</body>
+</html>

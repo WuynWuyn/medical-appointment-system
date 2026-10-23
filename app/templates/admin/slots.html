@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Quản lý khung giờ{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-gray-800">Quản lý khung giờ khám</h1>
+
+<form method="get" class="flex gap-3 mb-6">
+    <select name="doctor_id" class="border rounded-lg px-3 py-2" onchange="this.form.submit()">
+        <option value="">-- Chọn bác sĩ --</option>
+        {% for d in doctors %}
+        <option value="{{ d.id }}" {% if doctor_id == d.id %}selected{% endif %}>{{ d.full_name }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+{% if selected_doctor %}
+<div class="bg-white rounded-xl shadow p-5 mb-6">
+    <h2 class="font-semibold mb-3">Tạo khung giờ hàng loạt cho {{ selected_doctor.full_name }}</h2>
+    <form method="post" action="/admin/slots/generate" class="flex flex-wrap gap-3 items-end">
+        <input type="hidden" name="doctor_id" value="{{ selected_doctor.id }}">
+        <div>
+            <label class="text-xs">Từ ngày</label>
+            <input type="date" name="start_date" required class="border rounded px-2 py-1.5 text-sm">
+        </div>
+        <div>
+            <label class="text-xs">Đến ngày</label>
+            <input type="date" name="end_date" required class="border rounded px-2 py-1.5 text-sm">
+        </div>
+        <div>
+            <label class="text-xs">Giờ bắt đầu</label>
+            <input type="number" name="start_hour" value="8" min="0" max="23" class="border rounded px-2 py-1.5 text-sm w-20">
+        </div>
+        <div>
+            <label class="text-xs">Giờ kết thúc</label>
+            <input type="number" name="end_hour" value="17" min="0" max="23" class="border rounded px-2 py-1.5 text-sm w-20">
+        </div>
+        <div>
+            <label class="text-xs">Độ dài (phút)</label>
+            <select name="slot_minutes" class="border rounded px-2 py-1.5 text-sm">
+                <option value="15">15</option>
+                <option value="30" selected>30</option>
+                <option value="60">60</option>
+            </select>
+        </div>
+        <button type="submit" class="bg-primary-600 text-white px-4 py-1.5 rounded text-sm">Tạo</button>
+    </form>
+</div>
+
+<div class="bg-white rounded-xl shadow p-5">
+    <h3 class="font-medium mb-3">Khung giờ tuần {{ week_start }}</h3>
+    {% if slots %}
+    <div class="flex flex-wrap gap-2">
+        {% for s in slots %}
+        <div class="border rounded px-3 py-1.5 text-sm
+            {% if s.status.value=='AVAILABLE' %}bg-green-50 border-green-200
+            {% elif s.status.value=='BOOKED' %}bg-gray-100
+            {% else %}bg-red-50 border-red-200{% endif %}">
+            {{ s.date.strftime('%d/%m') }} {{ s.start_time.strftime('%H:%M') }}
+            <span class="text-xs">({{ s.status.value }})</span>
+            {% if s.status.value != 'BLOCKED' %}
+            <form method="post" action="/admin/slots/{{ s.id }}/block" class="inline">
+                <button class="text-xs text-red-500 ml-1" title="Khóa">🔒</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-sm">Chưa có khung giờ trong tuần này.</p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

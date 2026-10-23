@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Chuyên khoa{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Quản lý chuyên khoa</h1>
+<form method="post" action="/admin/specialties/add" class="flex gap-3 mb-6">
+    <input type="text" name="name" required placeholder="Tên chuyên khoa" class="border rounded-lg px-3 py-2">
+    <input type="text" name="description" placeholder="Mô tả" class="border rounded-lg px-3 py-2 flex-1">
+    <button class="bg-primary-600 text-white px-4 py-2 rounded-lg">Thêm</button>
+</form>
+<div class="bg-white rounded-xl shadow">
+    <ul class="divide-y">
+        {% for s in specialties %}
+        <li class="px-4 py-3 flex justify-between">
+            <span class="font-medium">{{ s.name }}</span>
+            <span class="text-sm text-gray-500">{{ s.description or '' }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

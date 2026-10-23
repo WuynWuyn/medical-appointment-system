@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ doctor.full_name }}{% endblock %}
+{% block content %}
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex flex-col md:flex-row gap-6">
+        <div class="w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center text-4xl flex-shrink-0">
+            {% if doctor.avatar %}<img src="{{ doctor.avatar }}" class="w-24 h-24 rounded-full object-cover">{% else %}👨‍⚕️{% endif %}
+        </div>
+        <div class="flex-1">
+            <h1 class="text-2xl font-bold text-gray-800">{{ doctor.full_name }}</h1>
+            <p class="text-primary-600 font-medium">{{ doctor.specialty.name if doctor.specialty else '' }} · {{ doctor.degree or '' }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ doctor.experience_years }} năm kinh nghiệm · Phí khám: <strong>{{ "{:,}".format(doctor.consultation_fee) }} VNĐ</strong></p>
+            {% if doctor.bio %}<p class="text-gray-600 mt-3 text-sm">{{ doctor.bio }}</p>{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="bg-white rounded-xl shadow-md p-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">Lịch khám</h2>
+        <div class="flex gap-2 text-sm">
+            <a href="?week_start={{ prev_week }}" class="px-3 py-1 border rounded hover:bg-gray-50">← Tuần trước</a>
+            <a href="?week_start={{ next_week }}" class="px-3 py-1 border rounded hover:bg-gray-50">Tuần sau →</a>
+        </div>
+    </div>
+    <p class="text-xs text-gray-400 mb-4">Hiển thị tối đa {{ 14 }} ngày tới (theo cấu hình DISPLAY_DAYS)</p>
+    
+    {% if slots_by_date %}
+    <div class="space-y-4">
+        {% for date_str, slots in slots_by_date.items() %}
+        <div>
+            <h3 class="font-medium text-gray-700 mb-2">{{ date_str }}</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for item in slots %}
+                    {% set s = item.slot %}
+                    {% if item.is_past %}
+                    <span class="px-3 py-1.5 rounded border text-sm slot-past">{{ s.start_time.strftime('%H:%M') }} · Đã qua</span>
+                    {% elif s.status.value == 'BOOKED' %}
+                    <span class="px-3 py-1.5 rounded border text-sm slot-booked">{{ s.start_time.strftime('%H:%M') }} · Đã đặt</span>
+                    {% elif s.status.value == 'BLOCKED' %}
+                    <span class="px-3 py-1.5 rounded border text-sm slot-blocked">{{ s.start_time.strftime('%H:%M') }} · Tạm khóa</span>
+                    {% else %}
+                    <a href="/book/{{ s.id }}" class="px-3 py-1.5 rounded border text-sm slot-available">{{ s.start_time.strftime('%H:%M') }} · Còn trống</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-8">Bác sĩ chưa mở lịch khám trong khoảng thời gian này.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+ven/
+cat > .gitignore <<'EOF'
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.db
+*.sqlite3
+app/static/uploads/*
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.env

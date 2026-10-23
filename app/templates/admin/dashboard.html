@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Quản trị{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-gray-800">Dashboard Quản trị</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+    <div class="bg-white rounded-xl shadow p-5">
+        <p class="text-sm text-gray-500">Lịch hôm nay</p>
+        <p class="text-3xl font-bold text-primary-600">{{ today_count }}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow p-5">
+        <p class="text-sm text-gray-500">Chờ xác nhận</p>
+        <p class="text-3xl font-bold text-yellow-600">{{ pending_count }}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow p-5">
+        <p class="text-sm text-gray-500">Đã hủy trong tuần</p>
+        <p class="text-3xl font-bold text-gray-600">{{ cancelled_week }}</p>
+    </div>
+</div>
+
+{% if urgent %}
+<div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+    <h2 class="font-semibold text-red-700 mb-2">⚠️ Cần xử lý gấp (còn &lt; 1 giờ)</h2>
+    <ul class="text-sm space-y-1">
+        {% for u in urgent %}
+        <li>{{ u.code }} — {{ u.patient.full_name if u.patient else '' }} — {{ u.time_slot.start_time.strftime('%H:%M') if u.time_slot else '' }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <a href="/admin/doctors" class="bg-white rounded-xl shadow p-5 text-center hover:shadow-md">👨‍⚕️ Quản lý bác sĩ</a>
+    <a href="/admin/slots" class="bg-white rounded-xl shadow p-5 text-center hover:shadow-md">📅 Khung giờ khám</a>
+    <a href="/admin/appointments" class="bg-white rounded-xl shadow p-5 text-center hover:shadow-md">📋 Lịch hẹn</a>
+    <a href="/admin/specialties" class="bg-white rounded-xl shadow p-5 text-center hover:shadow-md">🏥 Chuyên khoa</a>
+</div>
+
+<form method="post" action="/admin/run-jobs" class="mt-6">
+    <button type="submit" class="text-sm text-gray-500 hover:underline">Chạy tác vụ nền thủ công (auto-expire)</button>
+</form>
+{% endblock %}

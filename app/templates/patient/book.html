@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Xác nhận đặt lịch{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white rounded-xl shadow-md p-6">
+    <h1 class="text-xl font-bold mb-4 text-gray-800">Xác nhận đặt lịch khám</h1>
+    {% if error %}
+    <div class="bg-red-50 text-red-700 p-3 rounded mb-4 text-sm">{{ error }}</div>
+    {% endif %}
+    <div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm space-y-1">
+        <p><strong>Bác sĩ:</strong> {{ slot.doctor.full_name }}</p>
+        <p><strong>Ngày:</strong> {{ slot.date.strftime('%d/%m/%Y') }}</p>
+        <p><strong>Giờ:</strong> {{ slot.start_time.strftime('%H:%M') }} – {{ slot.end_time.strftime('%H:%M') }}</p>
+        <p><strong>Bệnh nhân:</strong> {{ user.full_name }} {% if user.phone %}· {{ user.phone }}{% endif %}</p>
+    </div>
+    <form method="post" action="/book/{{ slot.id }}" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Lý do khám / Triệu chứng *</label>
+            <textarea name="reason" required maxlength="500" rows="3"
+                      class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500"
+                      placeholder="Mô tả ngắn gọn lý do khám..."></textarea>
+        </div>
+        <div class="flex gap-3">
+            <a href="/doctors/{{ slot.doctor_id }}" class="flex-1 text-center border border-gray-300 py-2.5 rounded-lg hover:bg-gray-50">Quay lại</a>
+            <button type="submit" class="flex-1 bg-primary-600 text-white py-2.5 rounded-lg font-medium hover:bg-primary-700">Xác nhận đặt lịch</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
