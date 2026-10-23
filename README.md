@@ -75,23 +75,6 @@ appointment_booking/
 └── README.md
 ```
 
-## Seeded Bugs (để kiểm thử)
-
-Xem file `danh-sach-bug-kiem-thu.docx` hoặc các comment `BUG-xx` trong code.
-
-| Mã     | Mô tả ngắn                                      |
-|--------|-------------------------------------------------|
-| BUG-01 | DISPLAY_DAYS=14 vs MAX_BOOKING_DAYS=30          |
-| BUG-02 | SĐT không bắt buộc khi đăng ký                  |
-| BUG-04 | Không check tuổi ≥ 18                           |
-| BUG-05 | Upload ảnh max 5MB (config)                     |
-| BUG-06 | Hủy lịch luôn set slot AVAILABLE                |
-| BUG-07 | Admin xác nhận được ca đã qua giờ               |
-| BUG-08 | Cho phép INACTIVE bác sĩ dù còn lịch tương lai  |
-| BUG-10 | Thiếu lock theo patient_id                      |
-| BUG-11 | Race condition khi book API                     |
-| BUG-12 | Validation backend yếu                          |
-| BUG-13 | F5 trang success tạo lịch trùng (không PRG)     |
 
 ## API thử nghiệm bug
 
