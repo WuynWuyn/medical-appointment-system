@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
+import token
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, Form
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from urllib.parse import urlsplit
 from app.database import get_db
 from app.models.models import User, UserRole, UserStatus
 from app.auth import get_password_hash, verify_password, create_access_token, get_current_user
@@ -88,7 +90,8 @@ async def register(
 async def login_page(request: Request):
     return templates.TemplateResponse("auth/login.html", {
         "request": request,
-        "registered": request.query_params.get("registered")
+        "registered": request.query_params.get("registered"),
+        "next_url": request.query_params.get("next")
     })
 
 @router.post("/login")
@@ -97,18 +100,21 @@ async def login(
     response: Response,
     email: str = Form(...),
     password: str = Form(...),
+    next_url: str = Form(None, alias="next"),
     db: Session = Depends(get_db)
 ):
     user = db.query(User).filter(User.email == email.lower()).first()
     if not user:
         return templates.TemplateResponse("auth/login.html", {
-            "request": request, "error": "Email hoặc mật khẩu không đúng"
+            "request": request, "error": "Email hoặc mật khẩu không đúng",
+            "next_url": next_url
         })
     
     # Lock check
     if user.status == UserStatus.LOCKED and user.locked_until and user.locked_until > datetime.utcnow():
         return templates.TemplateResponse("auth/login.html", {
-            "request": request, "error": "Tài khoản bị khóa tạm thời. Thử lại sau."
+            "request": request, "error": "Tài khoản bị khóa tạm thời. Thử lại sau.",
+            "next_url": next_url
         })
     
     if not verify_password(password, user.hashed_password):
@@ -118,7 +124,8 @@ async def login(
             user.locked_until = datetime.utcnow() + timedelta(minutes=15)
         db.commit()
         return templates.TemplateResponse("auth/login.html", {
-            "request": request, "error": "Email hoặc mật khẩu không đúng"
+            "request": request, "error": "Email hoặc mật khẩu không đúng",
+            "next_url": next_url
         })
     
     user.failed_login_attempts = 0
@@ -126,10 +133,28 @@ async def login(
     user.locked_until = None
     db.commit()
     
-    token = create_access_token({"sub": user.id, "role": user.role.value})
-    redirect_url = "/admin" if user.role == UserRole.ADMIN else "/"
+    token = create_access_token({"sub": user.id, "role": getattr(user.role, "value", str(user.role))})
+    role_value = getattr(user.role, "value", str(user.role))
+    redirect_url = "/admin" if role_value == "ADMIN" else "/my-appointments"
+    if role_value != "ADMIN" and next_url:
+        parsed_next = urlsplit(next_url)
+        if (
+            parsed_next.path.startswith("/")
+            and not parsed_next.path.startswith("//")
+            and not parsed_next.netloc
+            and not parsed_next.scheme
+            and "\\" not in next_url
+        ):
+            redirect_url = next_url
     resp = RedirectResponse(redirect_url, status_code=303)
-    resp.set_cookie(key="access_token", value=token, httponly=True, max_age=86400)
+    resp.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        max_age=86400,
+        samesite="lax",
+        path="/"
+        )
     return resp
 
 @router.get("/logout")

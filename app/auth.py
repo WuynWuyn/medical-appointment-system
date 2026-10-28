@@ -21,6 +21,9 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
+    # Đảm bảo sub là string (JWT chuẩn)
+    if "sub" in to_encode:
+        to_encode["sub"] = str(to_encode["sub"])
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
@@ -28,11 +31,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 def get_user_from_token(token: str, db: Session) -> Optional[User]:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        user_id: int = payload.get("sub")
-        if user_id is None:
+        sub = payload.get("sub")
+        if sub is None:
             return None
+        user_id = int(sub)
         return db.query(User).filter(User.id == user_id).first()
-    except JWTError:
+    except (JWTError, ValueError, TypeError):
         return None
 
 async def get_current_user(

@@ -35,7 +35,7 @@
                 <div class="flex items-center gap-4">
                     <a href="/doctors" class="hover:text-primary-100">Bác sĩ</a>
                     {% if user %}
-                        {% if user.role.value == 'ADMIN' %}
+                        {% if user.role.value == 'ADMIN' or user.role == 'ADMIN' %}
                             <a href="/admin" class="hover:text-primary-100">Quản trị</a>
                         {% else %}
                             <a href="/my-appointments" class="hover:text-primary-100">Lịch hẹn của tôi</a>
